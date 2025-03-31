@@ -1,14 +1,16 @@
 import "./App.css";
-import { useFileUpload } from "./hooks/useFileUpload";
+import { useFileConversion } from "./hooks/useFileConversion";
 
 function App() {
-  const { handleFileUpload } = useFileUpload();
+  const { handleFileConversion, fileData } = useFileConversion();
+
+  console.log(fileData);
 
   return (
     <>
       <h1>CSV Upload</h1>
       <p>Add disclaimer about format</p>
-      <input type="file" accept=".csv" onChange={handleFileUpload} />
+      <input type="file" accept=".csv" onChange={handleFileConversion} />
       <button>Upload</button>
     </>
   );

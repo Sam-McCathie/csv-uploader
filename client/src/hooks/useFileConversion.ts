@@ -3,14 +3,13 @@ import { convertCSV } from "../helpers/convertCSV";
 
 type FileData = Record<string, string>[] | null;
 
-export const useFileUpload = () => {
+export const useFileConversion = () => {
   const [fileData, setFileData] = useState<FileData>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileConversion = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file) {
-      console.log("File selected:", file.name);
       const reader = new FileReader();
       // Add try catch below?
       reader.onload = (event) => {
@@ -22,5 +21,5 @@ export const useFileUpload = () => {
     }
   };
 
-  return { handleFileUpload, fileData };
+  return { handleFileConversion, fileData };
 };
