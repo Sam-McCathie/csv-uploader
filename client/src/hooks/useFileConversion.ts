@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { convertCSV } from "../helpers/convertCSV";
 
-type FileData = Record<string, string>[] | null;
+export type FileData = Record<string, string>[] | null;
 
 export const useFileConversion = () => {
   const [fileData, setFileData] = useState<FileData>(null);
