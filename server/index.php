@@ -31,7 +31,50 @@
     if($requestUri === "/upload"){
         if($requestMethod === "POST"){
             $rawBody = file_get_contents("php://input");
-            $jsonData = json_decode($rawBody, true);
+            $csvData = json_decode($rawBody, true);
+
+            try {
+                $pdo->beginTransaction();
+
+                forEach($csvData as $row) {
+                    $companyName = $row['companyName'];
+                    $employeeName = $row['employeeName'];
+                    $emailAddress = $row['emailAddress'];
+                    $salary = $row['salary'];
+
+                    $stmt = $pdo->prepare('SELECT * FROM companies WHERE name = :companyName');
+                    $stmt->execute(["companyName" => $companyName]);
+                    $company = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if($company) {
+                        $companyId = $company['company_id'];
+                    } else {
+                        $stmt = $pdo->prepare('INSERT INTO companies (name) VALUES (:companyName)');
+                        $stmt->execute(["companyName" => $companyName]);
+                        $companyId = $pdo->lastInsertId();
+                    }
+
+                    $stmt = $pdo->prepare('INSERT INTO employees (name, email, salary, company_id) VALUES (:employeeName, :emailAddress, :salary, :companyId)');
+                    $stmt->execute([
+                        'employeeName' => $employeeName,
+                        'emailAddress' => $emailAddress,
+                        'salary' => $salary,
+                        'companyId' => $companyId
+                    ]);
+                }
+                $pdo->commit();
+    
+                header('Content-Type: application/json');
+                echo json_encode(['message' => 'File data uploaded successfully']);
+                exit;
+
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                http_response_code(500);
+                echo json_encode(['error' => 'Database operation failed: ' . $e->getMessage()]);
+                exit;
+            }
+
 
             $stmt = $pdo->query("SELECT * FROM companies WHERE company_id = 1");
             $company = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -39,12 +82,12 @@
             echo json_encode($company);
             exit;
             
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
         }
-    } else {
-        http_response_code(405);
-        echo json_encode(['error' => 'Method not allowed']);
-        exit;
-    }
+    } 
 
     // Default response for unhandled routes
     http_response_code(404);
