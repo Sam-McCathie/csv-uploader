@@ -1,3 +1,3 @@
 <?php
-    echo "Testing server response...<br>";
+    echo "Testing server update";
 ?>
