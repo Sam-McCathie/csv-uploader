@@ -30,8 +30,24 @@
 
     if(preg_match('#^/employees(?:/(\d+))?$#', $requestUri, $matches)){
         if($requestMethod === "GET"){
-            $stmt = $pdo->query("SELECT e.employee_id, c.name AS company_name, e.name AS employee_name, e.email, e.salary FROM employees e
-            JOIN companies c ON e.company_id = c.company_id");
+            $stmt = $pdo->query("
+        SELECT 
+            e.employee_id, 
+            c.name AS company_name, 
+            e.name AS employee_name, 
+            e.email, 
+            e.salary
+        FROM employees e
+        JOIN companies c ON e.company_id = c.company_id
+        UNION ALL
+        SELECT 
+            NULL AS employee_id, 
+            'All Companies' AS company_name, 
+            'Average Salary' AS employee_name, 
+            NULL AS email, 
+            ROUND(AVG(e.salary), 2) AS salary
+        FROM employees e
+    ");
             $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             header('Content-Type: application/json');
             echo json_encode($employees);
