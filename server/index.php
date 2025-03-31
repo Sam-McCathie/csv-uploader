@@ -28,10 +28,31 @@
     $requestUri = $_SERVER['REQUEST_URI'];
     $requestMethod = $_SERVER['REQUEST_METHOD'];
 
+    // Not explicitly defining an email updated route as logic will be expanded upon in the future.
+    if(preg_match('#^/employees(?:/(\d+))?$#', $requestUri, $matches)){
+        
+        if($requestMethod === "PUT"){    
+            $employeeId = isset($matches[1]) ? (int)$matches[1] : null;
+            $input = json_decode(file_get_contents('php://input'), true);
+            if($employeeId && isset($input['email']) && !empty($input['email'])){
+                try {
+                    $stmt = $pdo->prepare('UPDATE employees SET email = :email WHERE employee_id = :employeeId');
+                    $stmt->execute(['email' => $input['email'], 'employeeId' => $employeeId]);
+                    header('Content-Type: application/json');
+                    echo json_encode(['message' => "Update employee $employeeId email successful"]);
+                    exit;
+                } catch (PDOException $e) {
+                    http_response_code(500);
+                    echo json_encode(['error' => 'Database operation failed: ' . $e->getMessage()]);
+                    exit;
+                }
+            }
+        }
+    }
+
     if($requestUri === "/upload"){
         if($requestMethod === "POST"){
-            $rawBody = file_get_contents("php://input");
-            $csvData = json_decode($rawBody, true);
+            $csvData = json_decode(file_get_contents('php://input'), true);
 
             try {
                 $pdo->beginTransaction();
@@ -83,6 +104,7 @@
             exit;
             
         } else {
+            # remove this? or add to other endpoints
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
             exit;
