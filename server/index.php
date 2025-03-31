@@ -28,10 +28,14 @@
     $requestUri = $_SERVER['REQUEST_URI'];
     $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-    // Not explicitly defining an email updated route as logic will be expanded upon in the future.
     if(preg_match('#^/employees(?:/(\d+))?$#', $requestUri, $matches)){
-        
-        if($requestMethod === "PUT"){    
+        if($requestMethod === "GET"){
+            $stmt = $pdo->query("SELECT e.employee_id, c.name AS company_name, e.name AS employee_name, e.email, e.salary FROM employees e
+            JOIN companies c ON e.company_id = c.company_id");
+            $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            header('Content-Type: application/json');
+            echo json_encode($employees);
+        } else if($requestMethod === "PUT"){    
             $employeeId = isset($matches[1]) ? (int)$matches[1] : null;
             $input = json_decode(file_get_contents('php://input'), true);
             if($employeeId && isset($input['email']) && !empty($input['email'])){
@@ -47,13 +51,14 @@
                     exit;
                 }
             }
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
         }
-    }
-
-    if($requestUri === "/upload"){
+    } else if($requestUri === "/upload"){
         if($requestMethod === "POST"){
             $csvData = json_decode(file_get_contents('php://input'), true);
-
             try {
                 $pdo->beginTransaction();
 
@@ -104,16 +109,16 @@
             exit;
             
         } else {
-            # remove this? or add to other endpoints
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
             exit;
         }
-    } 
+    } else {
+        // Default response for unhandled routes
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Endpoint not found']);
+        exit;
+    }
 
-    // Default response for unhandled routes
-    http_response_code(404);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Endpoint not found']);
-    exit;
 ?>
