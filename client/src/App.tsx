@@ -6,13 +6,17 @@ import { useFileUpload } from "./hooks/useFileUpload";
 function App() {
   const { handleFileConversion, fileData } = useFileConversion();
   const { handleFileUpload } = useFileUpload();
-  const { employees, handleUpdateEmployeeEmail } = useEmployeeService();
+  const { employees, averageSalary, handleUpdateEmployeeEmail } =
+    useEmployeeService();
 
-  console.log(employees);
+  console.log(employees, averageSalary);
 
   const testingUpdateEmail = async () => {
     const employeeId = 2; // Replace with the actual employee ID you want to update
-    handleUpdateEmployeeEmail(employeeId, "testing@email.com");
+    handleUpdateEmployeeEmail({
+      employeeId: employeeId,
+      email: "testing@email.com",
+    });
   };
 
   const fileUpload = () => {
@@ -28,10 +32,10 @@ function App() {
         Upload
       </button>
       <button onClick={testingUpdateEmail}>Update email test</button>
-      {/* <div>
+      <div>
         {employees &&
           employees.map((employee) => <p>{employee.employee_name}</p>)}
-      </div> */}
+      </div>
     </>
   );
 }
