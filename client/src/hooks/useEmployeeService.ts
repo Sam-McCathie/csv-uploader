@@ -1,13 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-
-interface Employee {
-  employee_id: number | null;
-  company_name: string;
-  employee_name: string;
-  email: string | null;
-  salary: number | null;
-}
+import { Employee } from "../types/employee";
 
 export const useEmployeeService = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
