@@ -1,4 +1,4 @@
-import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 interface Employee {
@@ -9,11 +9,10 @@ interface Employee {
   salary: number | null;
 }
 
-const queryClient = new QueryClient();
-
 export const useEmployeeService = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [averageSalary, setAverageSalary] = useState<number | null>(null);
+  const queryClient = useQueryClient(); // Access the QueryClient instance
 
   const fetchEmployees = async () => {
     const response = await fetch("http://localhost:8000/employees", {
@@ -81,8 +80,8 @@ export const useEmployeeService = () => {
     }) => updateEmployeeEmail(employeeId, email),
     onSuccess: () => {
       // Invalidate the employees query to refetch data
-      console.log("Employee email updated successfully");
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      console.log("Employee email updated successfully");
     },
   });
 
