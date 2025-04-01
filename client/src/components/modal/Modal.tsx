@@ -3,10 +3,11 @@ import "./Modal.css";
 
 interface ModalProps {
   children: ReactNode;
+  isOpen: boolean;
   onClose: () => void;
 }
 
-export const Modal: FC<ModalProps> = ({ children, onClose }) => {
+export const Modal: FC<ModalProps> = ({ children, isOpen, onClose }) => {
   const handleOverlayClose = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -14,13 +15,15 @@ export const Modal: FC<ModalProps> = ({ children, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClose}>
-      <div className="modal-content">
-        <span className="close" onClick={onClose}>
-          X
-        </span>
-        {children}
+    isOpen && (
+      <div className="modal-overlay" onClick={handleOverlayClose}>
+        <div className="modal-content">
+          <span className="close" onClick={onClose}>
+            X
+          </span>
+          {children}
+        </div>
       </div>
-    </div>
+    )
   );
 };
