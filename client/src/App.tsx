@@ -1,4 +1,5 @@
 import "./App.css";
+import { EmployeeList } from "./components/employee-list/EmployeeList";
 import { useEmployeeService } from "./hooks/useEmployeeService";
 import { useFileConversion } from "./hooks/useFileConversion";
 import { useFileUpload } from "./hooks/useFileUpload";
@@ -32,10 +33,7 @@ function App() {
         Upload
       </button>
       <button onClick={testingUpdateEmail}>Update email test</button>
-      <div>
-        {employees &&
-          employees.map((employee) => <p>{employee.employee_name}</p>)}
-      </div>
+      <EmployeeList />
     </>
   );
 }
