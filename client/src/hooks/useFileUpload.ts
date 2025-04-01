@@ -1,7 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileData } from "./useFileConversion";
 
 export const useFileUpload = () => {
+  const queryClient = useQueryClient(); // Access the QueryClient instance
+
   const uploadFileDataMutation = async (fileData: FileData) => {
     try {
       const response = await fetch("http://localhost:8000/upload", {
@@ -27,13 +29,15 @@ export const useFileUpload = () => {
   const {
     mutateAsync: handleFileUpload,
     isPending: uploadPending,
+    isSuccess: uploadSuccess,
     error: uploadError,
   } = useMutation({
     mutationFn: uploadFileDataMutation,
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       console.log("File data successfully sent to backend:", data);
     },
   });
 
-  return { handleFileUpload, uploadError, uploadPending };
+  return { handleFileUpload, uploadError, uploadPending, uploadSuccess };
 };

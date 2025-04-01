@@ -60,7 +60,7 @@ export const EmployeeList = () => {
     return <p>Loading...</p>;
   }
 
-  if (!employees) {
+  if (employees.length === 0) {
     return <p>No employees found - please upload above :)</p>;
   }
 
@@ -69,6 +69,7 @@ export const EmployeeList = () => {
       {employees &&
         employees.map((employee) => (
           <EmployeeInformation
+            key={employee.employee_id}
             employee={employee}
             openModal={handleOpenModal}
           />
