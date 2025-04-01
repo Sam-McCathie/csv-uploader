@@ -1,16 +1,8 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { FileData } from "./useFileConversion";
 
-// Todo: Add loading state
 export const useFileUpload = () => {
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const handleFileUpload = (fileData: FileData) => async () => {
-    if (!fileData) {
-      console.error("No file data to upload");
-      return;
-    }
-
+  const uploadFileDataMutation = async (fileData: FileData) => {
     try {
       const response = await fetch("http://localhost:8000/upload", {
         method: "POST",
@@ -19,22 +11,29 @@ export const useFileUpload = () => {
         },
         body: JSON.stringify(fileData),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         const errorMessage =
           errorData.error || "Failed to send file data to backend";
-        setUploadError(errorMessage);
         throw new Error(errorMessage);
       }
-
-      const responseData = await response.json();
-      console.log("File data successfully sent to backend:", responseData);
+      return response.json();
     } catch (error) {
-      setUploadError("Failed to send file data to backend");
-      console.error("Error sending file data to backend:", error);
+      const errorMessage =
+        (error as Error).message || "An unexpected error occurred";
+      throw new Error(errorMessage);
     }
   };
+  const {
+    mutateAsync: handleFileUpload,
+    isPending: uploadPending,
+    error: uploadError,
+  } = useMutation({
+    mutationFn: uploadFileDataMutation,
+    onSuccess: (data) => {
+      console.log("File data successfully sent to backend:", data);
+    },
+  });
 
-  return { handleFileUpload, uploadError };
+  return { handleFileUpload, uploadError, uploadPending };
 };

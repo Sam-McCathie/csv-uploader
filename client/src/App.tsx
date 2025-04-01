@@ -6,12 +6,17 @@ import { useFileUpload } from "./hooks/useFileUpload";
 function App() {
   const { handleFileConversion, fileData } = useFileConversion();
   const { handleFileUpload } = useFileUpload();
-  const { employees, employeeError, handleUpdateEmployeeEmail } =
-    useEmployeeService();
+  const { employees, handleUpdateEmployeeEmail } = useEmployeeService();
+
+  console.log(employees);
 
   const testingUpdateEmail = async () => {
     const employeeId = 2; // Replace with the actual employee ID you want to update
     handleUpdateEmployeeEmail(employeeId, "testing@email.com");
+  };
+
+  const fileUpload = () => {
+    handleFileUpload(fileData);
   };
 
   return (
@@ -19,14 +24,14 @@ function App() {
       <h1>CSV Upload</h1>
       <p>Add disclaimer about format</p>
       <input type="file" accept=".csv" onChange={handleFileConversion} />
-      <button onClick={handleFileUpload(fileData)} disabled={fileData === null}>
+      <button onClick={fileUpload} disabled={fileData === null}>
         Upload
       </button>
       <button onClick={testingUpdateEmail}>Update email test</button>
-      <div>
+      {/* <div>
         {employees &&
           employees.map((employee) => <p>{employee.employee_name}</p>)}
-      </div>
+      </div> */}
     </>
   );
 }
