@@ -28,7 +28,10 @@ function App() {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
       >
-        <p>Add disclaimer about format</p>
+        <p>
+          Please ensure the CSV file follows this format:
+          <strong>Company Name, Employee Name, Email Address, Salary</strong>.
+        </p>
         <input type="file" accept=".csv" onChange={handleFileConversion} />
         <button onClick={fileUpload} disabled={fileData === null}>
           Upload

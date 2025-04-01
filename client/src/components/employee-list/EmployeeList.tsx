@@ -1,23 +1,68 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEmployeeService } from "../../hooks/useEmployeeService";
-import { EmployeeInformation } from "../employee-information/employee-information";
+import { EmployeeInformation } from "../employee-information/EmployeeInformation";
 import { Modal as UpdateEmployeeModal } from "../modal/Modal";
+import { Employee } from "../../types/employee";
+
+const defaultEmployee = {
+  company_name: "",
+  employee_name: "",
+  email: "",
+  employee_id: 0,
+  salary: 0,
+};
 
 export const EmployeeList = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
-  const { employees, averageSalary, handleUpdateEmployeeEmail } =
-    useEmployeeService();
+  const [email, setEmail] = useState<string>("");
+  const [employeeInformation, setEmployeeInformation] =
+    useState<Employee>(defaultEmployee);
 
-  const handleOpenModal = () => {
+  const { company_name, employee_id, employee_name, salary } =
+    employeeInformation;
+
+  useEffect(() => {
+    if (employeeInformation) {
+      setEmail(employeeInformation?.email || "");
+    }
+  }, [employeeInformation]);
+
+  const {
+    employees,
+    averageSalary,
+    isEmployeesLoading,
+    handleUpdateEmployeeEmail,
+  } = useEmployeeService();
+
+  const handleOpenModal = (employee: Employee) => {
+    setEmployeeInformation(employee);
     setIsEmployeeModalOpen(true);
-    // Set props of modal with employee data
   };
 
   const handleCloseModal = () => {
     setIsEmployeeModalOpen(false);
+    setEmployeeInformation(defaultEmployee);
   };
 
-  // TODO add a case where there are no employees
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const updateEmployeeEmail = () => {
+    handleUpdateEmployeeEmail({
+      employeeId: employeeInformation.employee_id,
+      email: email,
+    });
+    handleCloseModal();
+  };
+
+  if (isEmployeesLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!employees) {
+    return <p>No employees found - please upload above :)</p>;
+  }
 
   return (
     <div className="employee-list">
@@ -28,7 +73,7 @@ export const EmployeeList = () => {
             openModal={handleOpenModal}
           />
         ))}
-      <p>Average Salary: {averageSalary}</p>
+      <p className="average">Average Salary: {averageSalary}</p>
 
       {/* Could extract to a separate component */}
       <UpdateEmployeeModal
@@ -37,13 +82,13 @@ export const EmployeeList = () => {
       >
         <h1>Update Email</h1>
         <p>Update the email address of the employee.</p>
-        <button
-          onClick={() =>
-            handleUpdateEmployeeEmail({ employeeId: 1, email: "email@co" })
-          }
-        >
-          Update Email
-        </button>
+        <p>Id: {employee_id}</p>
+        <p>Company name: {company_name}</p>
+        <label>Email: </label>
+        <input value={email} onChange={handleEmailChange} />
+        <p>Employee name: {employee_name}</p>
+        <p>Salary: {salary}</p>
+        <button onClick={updateEmployeeEmail}>Update Email</button>
       </UpdateEmployeeModal>
     </div>
   );
